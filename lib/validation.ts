@@ -106,3 +106,19 @@ export interface FraudReportState {
   message?: string;
   errors?: Record<string, string[] | undefined>;
 }
+
+export const contactFormSchema = z.object({
+  name: z.string().trim().min(2, 'Name must be at least 2 characters').max(120),
+  email: z.string().trim().email('Enter a valid email').max(200),
+  category: z.enum(['general', 'privacy', 'fraud'], { message: 'Choose a category' }),
+  subject: optionalText(200),
+  message: z.string().trim().min(10, 'Message must be at least 10 characters').max(5000),
+});
+
+export type ContactFormInput = z.infer<typeof contactFormSchema>;
+
+export interface ContactFormState {
+  ok: boolean;
+  message?: string;
+  errors?: Record<string, string[] | undefined>;
+}

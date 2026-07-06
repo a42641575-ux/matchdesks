@@ -96,10 +96,10 @@ export default function FraudPolicyPage() {
         <section>
           <h2 className="text-lg font-semibold text-gray-900">Contact</h2>
           <p className="mt-2">
-            Questions about this policy, or about a report you&apos;ve submitted, can be sent to{' '}
-            <a href="mailto:trust@matchdesks.com" className="font-medium text-red-600 hover:underline">
-              trust@matchdesks.com
-            </a>
+            Questions about this policy, or about a report you&apos;ve submitted, can be sent via our{' '}
+            <Link href="/contact?category=fraud" className="font-medium text-red-600 hover:underline">
+              contact form
+            </Link>
             . You can also read our{' '}
             <Link href="/privacy" className="font-medium text-red-600 hover:underline">
               privacy policy

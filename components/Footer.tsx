@@ -57,6 +57,11 @@ export function Footer() {
                   Terms of use
                 </Link>
               </li>
+              <li>
+                <Link href="/contact" className="hover:text-red-600">
+                  Contact
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

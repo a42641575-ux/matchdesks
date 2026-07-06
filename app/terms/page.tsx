@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { SITE_NAME } from '@/lib/constants';
 
 export const metadata: Metadata = {
@@ -93,11 +94,11 @@ export default function TermsPage() {
         <section>
           <h2 className="text-lg font-semibold text-gray-900">Contact</h2>
           <p className="mt-2">
-            Questions about these terms can be sent to{' '}
-            <a href="mailto:hello@matchdesks.com" className="font-medium text-red-600 hover:underline">
-              hello@matchdesks.com
-            </a>
-            .
+            Questions about these terms can be submitted via our{' '}
+            <Link href="/contact?category=general" className="font-medium text-red-600 hover:underline">
+              contact form
+            </Link>
+            . You&apos;ll receive an automatic confirmation, and we&apos;ll reply within 1–2 business days.
           </p>
         </section>
       </div>

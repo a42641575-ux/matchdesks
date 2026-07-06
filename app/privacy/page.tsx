@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { SITE_NAME } from '@/lib/constants';
 
 export const metadata: Metadata = {
@@ -88,11 +89,11 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-lg font-semibold text-gray-900">Contact</h2>
           <p className="mt-2">
-            Privacy questions or requests can be sent to{' '}
-            <a href="mailto:privacy@matchdesks.com" className="font-medium text-red-600 hover:underline">
-              privacy@matchdesks.com
-            </a>
-            .
+            Privacy questions or requests can be submitted via our{' '}
+            <Link href="/contact?category=privacy" className="font-medium text-red-600 hover:underline">
+              contact form
+            </Link>
+            . You&apos;ll receive an automatic confirmation, and we&apos;ll reply within 1–2 business days.
           </p>
         </section>
       </div>
