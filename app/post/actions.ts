@@ -5,6 +5,7 @@ import { headers } from 'next/headers';
 import { prisma } from '@/lib/db';
 import { slugify } from '@/lib/format';
 import { rateLimit } from '@/lib/rate-limit';
+import { notifyNewPendingJob } from '@/lib/email';
 import { jobPostSchema, type JobPostState } from '@/lib/validation';
 
 export async function createJobPosting(_prevState: JobPostState, formData: FormData): Promise<JobPostState> {
@@ -89,6 +90,13 @@ export async function createJobPosting(_prevState: JobPostState, formData: FormD
     console.error('[createJobPosting] failed:', err);
     return { ok: false, message: 'Something went wrong while posting your job. Please try again.' };
   }
+
+  await notifyNewPendingJob({
+    title: data.title,
+    companyName: data.companyName,
+    category: data.category,
+    slug: jobSlug,
+  });
 
   redirect(`/post/pending`);
 }

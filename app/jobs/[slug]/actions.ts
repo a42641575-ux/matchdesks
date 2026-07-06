@@ -3,6 +3,7 @@
 import { headers } from 'next/headers';
 import { prisma } from '@/lib/db';
 import { rateLimit } from '@/lib/rate-limit';
+import { notifyFraudReport } from '@/lib/email';
 import { fraudReportSchema, type FraudReportState } from '@/lib/validation';
 
 export async function submitFraudReport(
@@ -35,7 +36,10 @@ export async function submitFraudReport(
     };
   }
 
-  const job = await prisma.job.findUnique({ where: { id: parsed.data.jobId }, select: { id: true } });
+  const job = await prisma.job.findUnique({
+    where: { id: parsed.data.jobId },
+    select: { id: true, title: true, slug: true },
+  });
   if (!job) {
     return { ok: false, message: 'This job posting could not be found — it may have already been removed.' };
   }
@@ -47,6 +51,14 @@ export async function submitFraudReport(
       details: parsed.data.details,
       reporterEmail: parsed.data.reporterEmail,
     },
+  });
+
+  await notifyFraudReport({
+    jobTitle: job.title,
+    jobSlug: job.slug,
+    reason: parsed.data.reason,
+    details: parsed.data.details,
+    reporterEmail: parsed.data.reporterEmail,
   });
 
   return {
