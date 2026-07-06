@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mapleboard
+      POSTGRES_PASSWORD: mapleboard_dev_password
+      POSTGRES_DB: mapleboard
+    ports:
+      - '5432:5432'
+    volumes:
+      - mapleboard_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U mapleboard']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  mapleboard_pgdata:

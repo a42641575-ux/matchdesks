@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Province {
+  AB
+  BC
+  MB
+  NB
+  NL
+  NS
+  NT
+  NU
+  ON
+  PE
+  QC
+  SK
+  YT
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+}
+
+enum WorkArrangement {
+  ONSITE
+  HYBRID
+  REMOTE
+}
+
+enum SalaryPeriod {
+  HOURLY
+  MONTHLY
+  YEARLY
+}
+
+// NATIVE = posted directly through /post. FEED = ingested from an external
+// jobs feed/API (a later milestone) — kept here now so the model doesn't
+// need a breaking change when supply-seeding is added.
+enum JobSource {
+  NATIVE
+  FEED
+}
+
+enum JobStatus {
+  ACTIVE
+  PENDING_REVIEW
+  EXPIRED
+  REMOVED
+}
+
+enum FraudReportReason {
+  SCAM_OR_PHISHING
+  FAKE_COMPANY
+  PYRAMID_OR_MLM
+  DISCRIMINATORY
+  ALREADY_FILLED
+  DUPLICATE_POSTING
+  OTHER
+}
+
+enum FraudReportStatus {
+  OPEN
+  REVIEWING
+  RESOLVED
+  DISMISSED
+}
+
+model Company {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  website     String?
+  logoUrl     String?
+  description String?
+  city        String?
+  province    Province?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  jobs Job[]
+
+  @@index([slug])
+}
+
+model Job {
+  id        String @id @default(cuid())
+  title     String
+  slug      String @unique
+  description String
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // Slug from the fixed taxonomy in lib/constants.ts (e.g. "technology").
+  category        String
+  employmentType  EmploymentType
+  workArrangement WorkArrangement
+
+  city     String?
+  province Province?
+
+  // Salary range is required-by-default at the form layer (Ontario/BC pay
+  // transparency rules) — kept nullable here only to allow future
+  // feed-sourced imports that may not supply structured salary data.
+  salaryMin        Float?
+  salaryMax        Float?
+  salaryPeriod     SalaryPeriod?
+  currency         String        @default("CAD")
+  compensationText String?
+
+  // Ontario AI-disclosure requirement: whether AI is used to screen/assess/
+  // select applicants for this posting.
+  aiScreeningUsed    Boolean @default(false)
+  aiScreeningDetails String?
+
+  applyUrl   String?
+  applyEmail String?
+
+  source JobSource @default(NATIVE)
+  status JobStatus @default(ACTIVE)
+
+  postedAt  DateTime  @default(now())
+  expiresAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  fraudReports FraudReport[]
+
+  @@index([status, postedAt])
+  @@index([category])
+  @@index([province, city])
+  @@index([employmentType])
+  @@index([workArrangement])
+}
+
+model FraudReport {
+  id            String            @id @default(cuid())
+  jobId         String
+  job           Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  reason        FraudReportReason
+  details       String?
+  reporterEmail String?
+  status        FraudReportStatus @default(OPEN)
+  createdAt     DateTime          @default(now())
+
+  @@index([jobId])
+  @@index([status])
+}
+
+// Deferred to later milestones (see plan): User, Application, SavedJob,
+// JobAlert — auth, apply-flow, and email alerts are not part of this MVP.
