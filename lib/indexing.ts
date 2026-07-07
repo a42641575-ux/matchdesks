@@ -10,7 +10,7 @@ import { SITE_URL } from './constants';
 //   owner on the domain; pass the JSON key via GOOGLE_INDEXING_SERVICE_ACCOUNT.
 // Both skip silently if not configured so the app keeps working.
 
-export const INDEXNOW_KEY = '884fe8fe030644a9ba2b5adec45e7bd9';
+export const INDEXNOW_KEY = '1f56910f087f4710b8dea01d178b20ae';
 
 function hostOf(): string {
   try {
