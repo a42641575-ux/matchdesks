@@ -2,7 +2,11 @@ import { prisma } from '@/lib/db';
 import { SITE_NAME, SITE_TAGLINE, SITE_URL } from '@/lib/constants';
 import { formatSalary } from '@/lib/format';
 
-export const revalidate = 3600;
+// Dynamic route handler: the feed is generated per-request and cached at the edge
+// via the cache-control header below. Avoids build-time DB queries (the Vercel
+// build environment may not have DB access, which previously broke deploys).
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 function escapeXml(s: string): string {
   return s
@@ -61,7 +65,7 @@ ${items}
   return new Response(xml, {
     headers: {
       'content-type': 'application/rss+xml; charset=utf-8',
-      'cache-control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+      'cache-control': 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400',
     },
   });
 }
