@@ -126,6 +126,12 @@ model Job {
   applyEmail String?
 
   source JobSource @default(NATIVE)
+  // For feed-sourced jobs only (source = FEED): the original posting URL
+  // (attribution + dedupe key) and a canonical URL pointing to the original so
+  // Google attributes the content to the source and we avoid duplicate-content
+  // penalties. Native jobs leave both null (canonical defaults to our own URL).
+  feedSourceUrl String?
+  canonicalUrl  String?
   status JobStatus @default(ACTIVE)
 
   postedAt  DateTime  @default(now())

@@ -5,6 +5,8 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { adminToken, clearAdminCookie, isAuthConfigured, isAdmin, setAdminCookie } from '@/lib/admin';
+import { notifySearchEngines } from '@/lib/indexing';
+import { SITE_URL } from '@/lib/constants';
 
 export interface AdminLoginState {
   ok: boolean;
@@ -43,18 +45,30 @@ export async function approveJob(formData: FormData): Promise<void> {
   if (!(await isAdmin())) redirect('/admin');
   const jobId = String(formData.get('jobId') ?? '');
   if (!jobId) return;
-  await prisma.job.update({ where: { id: jobId }, data: { status: 'ACTIVE' } });
+  const job = await prisma.job.update({
+    where: { id: jobId },
+    data: { status: 'ACTIVE' },
+    select: { slug: true },
+  });
   revalidatePath('/admin');
   revalidatePath('/jobs');
   revalidatePath('/');
+  // Fast-path into Google for Jobs + Bing: notify search engines immediately.
+  await notifySearchEngines(`${SITE_URL}/jobs/${job.slug}`, 'URL_UPDATED');
 }
 
 export async function removeJob(formData: FormData): Promise<void> {
   if (!(await isAdmin())) redirect('/admin');
   const jobId = String(formData.get('jobId') ?? '');
   if (!jobId) return;
-  await prisma.job.update({ where: { id: jobId }, data: { status: 'REMOVED' } });
+  const job = await prisma.job.update({
+    where: { id: jobId },
+    data: { status: 'REMOVED' },
+    select: { slug: true },
+  });
   revalidatePath('/admin');
   revalidatePath('/jobs');
   revalidatePath('/');
+  // Tell Google the page is gone so it drops from Google for Jobs quickly.
+  await notifySearchEngines(`${SITE_URL}/jobs/${job.slug}`, 'URL_DELETED');
 }

@@ -9,8 +9,10 @@
     "lint": "eslint",
     "postinstall": "prisma generate",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed-feed": "tsx prisma/seed-feed.ts",
     "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "index:backfill": "tsx scripts/backfill-indexing.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

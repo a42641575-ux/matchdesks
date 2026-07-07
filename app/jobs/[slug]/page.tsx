@@ -6,7 +6,7 @@ import { JobCard } from '@/components/JobCard';
 import { JsonLd } from '@/components/JsonLd';
 import { CATEGORIES, categoryLabel, employmentTypeLabel, provinceName, SITE_URL, workArrangementLabel } from '@/lib/constants';
 import { formatDateLong, formatLocation, formatSalary, slugify } from '@/lib/format';
-import { buildJobPostingJsonLd } from '@/lib/schema-org';
+import { buildJobPostingJsonLd, buildBreadcrumbLd, buildFaqLd } from '@/lib/schema-org';
 import { getJobBySlug, getRelatedJobs } from '@/lib/search';
 import { ReportJobButton } from './ReportJobButton';
 
@@ -22,14 +22,21 @@ export async function generateMetadata({ params }: JobPageProps): Promise<Metada
   if (!job || job.status !== 'ACTIVE') return {};
 
   const location = formatLocation(job.city, job.province, job.workArrangement);
-  const title = `${job.title} at ${job.company.name} — ${location}`;
+  const salaryHint =
+    job.salaryMin != null && job.salaryMax != null
+      ? ` — $${job.salaryMin.toLocaleString()}–$${job.salaryMax.toLocaleString()}`
+      : job.compensationText
+        ? ` — ${job.compensationText}`
+        : '';
+  const title = `${job.title} at ${job.company.name}${salaryHint} | MatchDesks`;
   const trimmedDescription =
     job.description.length > 155 ? `${job.description.slice(0, 155).trim()}…` : job.description;
+  const description = `${job.title} at ${job.company.name} in ${location}. ${employmentTypeLabel(job.employmentType)} · ${workArrangementLabel(job.workArrangement)}. Apply now on MatchDesks.`;
 
   return {
     title,
-    description: trimmedDescription,
-    alternates: { canonical: `/jobs/${job.slug}` },
+    description,
+    alternates: { canonical: job.canonicalUrl ?? `/jobs/${job.slug}` },
     openGraph: {
       title,
       description: trimmedDescription,
@@ -58,6 +65,31 @@ export default async function JobDetailPage({ params }: JobPageProps) {
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
       <JsonLd data={jsonLd} />
+      <JsonLd data={buildBreadcrumbLd([
+        { name: 'Home', url: SITE_URL },
+        { name: 'Jobs', url: `${SITE_URL}/jobs` },
+        { name: categoryLabel(job.category), url: `${SITE_URL}/category/${job.category}` },
+        ...(job.city ? [{ name: job.city, url: `${SITE_URL}/jobs/${job.category}/${slugify(job.city)}` }] : []),
+        { name: job.title, url: `${SITE_URL}/jobs/${job.slug}` },
+      ])} />
+      <JsonLd data={buildFaqLd([
+        {
+          question: `How much does ${job.title} at ${job.company.name} pay?`,
+          answer:
+            job.salaryMin != null && job.salaryMax != null
+              ? `The listed salary range is $${job.salaryMin.toLocaleString()}–$${job.salaryMax.toLocaleString()} ${job.salaryPeriod ?? ''}.`
+              : job.compensationText ?? 'See the posting for compensation details.',
+        },
+        {
+          question: `Is the ${job.title} role at ${job.company.name} remote?`,
+          answer:
+            job.workArrangement === 'REMOTE'
+              ? 'Yes — this role is fully remote.'
+              : job.workArrangement === 'HYBRID'
+                ? 'This role is hybrid (a mix of on-site and remote).'
+                : `This role is on-site${job.city ? ` in ${job.city}` : ''}.`,
+        },
+      ])} />
 
       <Link href="/jobs" className="text-sm font-medium text-gray-500 hover:text-red-600">
         ← Back to all jobs

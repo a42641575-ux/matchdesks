@@ -27,8 +27,13 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/jobs?workArrangement=REMOTE" className="hover:text-red-600">
+                <Link href="/jobs/remote" className="hover:text-red-600">
                   Remote jobs
+                </Link>
+              </li>
+              <li>
+                <Link href="/salaries" className="hover:text-red-600">
+                  Salary guides
                 </Link>
               </li>
               <li>

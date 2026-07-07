@@ -3,7 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { JsonLd } from "@/components/JsonLd";
 import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/constants";
+import { buildOrganizationLd, buildWebSiteLd } from "@/lib/schema-org";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,6 +25,9 @@ export const metadata: Metadata = {
   },
   description:
     "MatchDesks is a job board built for Canada. Search jobs across every province and territory, or post a job in minutes.",
+  alternates: {
+    types: { 'application/rss+xml': '/jobs/feed.xml' },
+  },
 };
 
 export default function RootLayout({
@@ -36,6 +41,8 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-white text-gray-900">
+        <JsonLd data={buildOrganizationLd(SITE_URL, SITE_NAME)} />
+        <JsonLd data={buildWebSiteLd(SITE_URL, SITE_NAME)} />
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />

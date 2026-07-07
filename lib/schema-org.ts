@@ -77,3 +77,87 @@ export function buildJobPostingJsonLd(job: JobWithCompany, siteUrl: string): Rec
 
   return jsonLd;
 }
+
+/** Organization schema (site-wide, injected in root layout). */
+export function buildOrganizationLd(siteUrl: string, name: string): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name,
+    url: siteUrl,
+    logo: `${siteUrl}/icon.svg`,
+    areaServed: { '@type': 'Country', name: 'Canada' },
+  };
+}
+
+/** WebSite schema with a SearchAction (enables Google sitelinks search box). */
+export function buildWebSiteLd(siteUrl: string, name: string): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name,
+    url: siteUrl,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${siteUrl}/jobs?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+}
+
+/** BreadcrumbList schema. items should be ordered root → current. */
+export function buildBreadcrumbLd(items: { name: string; url: string }[]): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((it, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: it.name,
+      item: it.url,
+    })),
+  };
+}
+
+/** FAQPage schema. Each entry becomes a rich-result FAQ pair. */
+export function buildFaqLd(qas: { question: string; answer: string }[]): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: qas.map((qa) => ({
+      '@type': 'Question',
+      name: qa.question,
+      acceptedAnswer: { '@type': 'Answer', text: qa.answer },
+    })),
+  };
+}
+
+/** Article schema for blog/guide posts. */
+export function buildArticleLd(input: {
+  siteUrl: string;
+  siteName: string;
+  title: string;
+  description: string;
+  slug: string;
+  datePublished: string;
+  dateModified?: string;
+}): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: input.title,
+    description: input.description,
+    url: `${input.siteUrl}/blog/${input.slug}`,
+    datePublished: input.datePublished,
+    ...(input.dateModified ? { dateModified: input.dateModified } : {}),
+    publisher: {
+      '@type': 'Organization',
+      name: input.siteName,
+      logo: { '@type': 'ImageObject', url: `${input.siteUrl}/icon.svg` },
+    },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `${input.siteUrl}/blog/${input.slug}` },
+  };
+}

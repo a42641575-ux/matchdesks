@@ -2,10 +2,15 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { JobCard } from '@/components/JobCard';
+import { JsonLd } from '@/components/JsonLd';
 import { Pagination } from '@/components/Pagination';
-import { CATEGORIES, MAJOR_CITIES } from '@/lib/constants';
+import { CATEGORIES, MAJOR_CITIES, SITE_URL, provinceName } from '@/lib/constants';
 import { deslugify, slugify } from '@/lib/format';
 import { searchJobs } from '@/lib/search';
+import { countActiveJobs, salaryStats } from '@/lib/seo';
+import { buildBreadcrumbLd, buildFaqLd } from '@/lib/schema-org';
+
+const YEAR = new Date().getFullYear();
 
 // NOTE: this route lives inside the `[slug]` folder (shared with the job detail
 // page) rather than a sibling `[category]` folder, because Next.js requires every
@@ -32,8 +37,9 @@ export async function generateMetadata({ params }: CategoryCityPageProps): Promi
   if (!category) return {};
 
   const { city } = resolveCity(citySlug);
-  const title = `${category.label} Jobs in ${city}`;
-  const description = `Browse the latest ${category.label.toLowerCase()} jobs in ${city}, Canada. New listings added regularly on MatchDesks.`;
+  const total = await countActiveJobs({ category: categorySlug, city: { equals: city, mode: 'insensitive' } });
+  const title = `${category.label} jobs in ${city} (${YEAR}) — ${total} open | MatchDesks`;
+  const description = `Browse ${total} ${category.label.toLowerCase()} jobs in ${city}, Canada. Salaries, remote options, and new listings added daily on MatchDesks.`;
 
   return {
     title,
@@ -52,9 +58,26 @@ export default async function CategoryCityPage({ params, searchParams }: Categor
   const page = sp.page ? Math.max(1, Number(sp.page) || 1) : 1;
 
   const result = await searchJobs({ category: category.slug, city, province, page });
+  const stats = await salaryStats({ category: category.slug, city: { equals: city, mode: 'insensitive' } });
+  const canonical = `${SITE_URL}/jobs/${categorySlug}/${citySlug}`;
+  const salaryText = stats.avg
+    ? `Typical pay is around $${stats.min?.toLocaleString() ?? '—'}–$${stats.max?.toLocaleString() ?? '—'} per year based on ${stats.count} listing${stats.count === 1 ? '' : 's'} in ${city}.`
+    : `Salaries vary by role and experience — browse the current ${category.label.toLowerCase()} openings in ${city} for up-to-date ranges.`;
+  const faqs = [
+    { question: `How many ${category.label.toLowerCase()} jobs are in ${city}?`, answer: `There ${result.total === 1 ? 'is' : 'are'} ${result.total} ${category.label.toLowerCase()} job${result.total === 1 ? '' : 's'} in ${city} on MatchDesks.` },
+    { question: `What is the average ${category.label.toLowerCase()} salary in ${city}?`, answer: salaryText },
+    { question: `Are there remote ${category.label.toLowerCase()} jobs from ${city}?`, answer: `Yes — remote ${category.label.toLowerCase()} roles are open to candidates in ${city}. See the remote ${category.label.toLowerCase()} jobs page.` },
+  ];
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+      <JsonLd data={buildBreadcrumbLd([
+        { name: 'Home', url: SITE_URL },
+        { name: 'Jobs', url: `${SITE_URL}/jobs` },
+        { name: category.label, url: `${SITE_URL}/category/${category.slug}` },
+        { name: city, url: canonical },
+      ])} />
+      <JsonLd data={buildFaqLd(faqs)} />
       <nav className="text-sm text-gray-500">
         <Link href="/jobs" className="hover:text-red-600">
           All jobs
@@ -118,6 +141,35 @@ export default async function CategoryCityPage({ params, searchParams }: Categor
           ))}
         </div>
       </div>
+
+      <div className="mt-8 flex flex-wrap gap-2">
+        {province && (
+          <Link href={`/jobs/${category.slug}/in/${province.toLowerCase()}`} className="rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:border-red-300 hover:text-red-600">
+            {category.label} in {provinceName(province)}
+          </Link>
+        )}
+        <Link href={`/jobs/remote/${category.slug}`} className="rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:border-red-300 hover:text-red-600">
+          Remote {category.label.toLowerCase()} jobs
+        </Link>
+        <Link href={`/salaries/${category.slug}/${citySlug}`} className="rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:border-red-300 hover:text-red-600">
+          {category.label} salary in {city}
+        </Link>
+        <Link href={`/category/${category.slug}`} className="rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:border-red-300 hover:text-red-600">
+          All {category.label.toLowerCase()} roles
+        </Link>
+      </div>
+
+      <section className="mt-12 border-t border-gray-100 pt-8">
+        <h2 className="text-base font-semibold text-gray-900">Frequently asked questions</h2>
+        <div className="mt-4 space-y-4">
+          {faqs.map((f) => (
+            <div key={f.question}>
+              <h3 className="text-sm font-semibold text-gray-900">{f.question}</h3>
+              <p className="mt-1 text-sm text-gray-600">{f.answer}</p>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

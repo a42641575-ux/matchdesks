@@ -49,12 +49,16 @@ export default async function Home() {
           {CATEGORIES.map((c) => (
             <Link
               key={c.slug}
-              href={`/jobs?category=${c.slug}`}
+              href={`/category/${c.slug}`}
               className="rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:border-red-300 hover:text-red-600"
             >
               {c.label}
             </Link>
           ))}
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link href="/jobs/remote" className="rounded-full bg-red-50 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100">Remote jobs in Canada</Link>
+          <Link href="/salaries" className="rounded-full bg-red-50 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-100">Salary guides</Link>
         </div>
       </section>
 
