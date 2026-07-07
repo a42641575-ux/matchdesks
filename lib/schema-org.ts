@@ -85,7 +85,7 @@ export function buildOrganizationLd(siteUrl: string, name: string): Record<strin
     '@type': 'Organization',
     name,
     url: siteUrl,
-    logo: `${siteUrl}/icon.svg`,
+    logo: `${siteUrl}/icon-192.png`,
     areaServed: { '@type': 'Country', name: 'Canada' },
   };
 }
@@ -156,7 +156,7 @@ export function buildArticleLd(input: {
     publisher: {
       '@type': 'Organization',
       name: input.siteName,
-      logo: { '@type': 'ImageObject', url: `${input.siteUrl}/icon.svg` },
+      logo: { '@type': 'ImageObject', url: `${input.siteUrl}/icon-192.png` },
     },
     mainEntityOfPage: { '@type': 'WebPage', '@id': `${input.siteUrl}/blog/${input.slug}` },
   };
