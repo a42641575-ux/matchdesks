@@ -1,11 +1,10 @@
 import { type Prisma, type Province, type SalaryPeriod } from '@prisma/client';
 import { prisma } from './db';
+import { openJobWhere } from './search';
 
-const ACTIVE = { status: 'ACTIVE' as const };
-
-/** Count active jobs matching a filter (used for landing-page headlines + sitemap priority). */
+/** Count active, non-expired jobs matching a filter (landing headlines + sitemap priority). */
 export async function countActiveJobs(where: Prisma.JobWhereInput = {}): Promise<number> {
-  return prisma.job.count({ where: { ...ACTIVE, ...where } });
+  return prisma.job.count({ where: openJobWhere(where) });
 }
 
 /** Convert a salary amount to a yearly equivalent for apples-to-apples stats. */
@@ -32,7 +31,7 @@ export interface SalaryStats {
 /** Yearly-normalized salary stats for active jobs matching the filter. */
 export async function salaryStats(where: Prisma.JobWhereInput = {}): Promise<SalaryStats> {
   const jobs = await prisma.job.findMany({
-    where: { ...ACTIVE, salaryMin: { not: null }, ...where },
+    where: openJobWhere({ salaryMin: { not: null }, ...where }),
     select: { salaryMin: true, salaryMax: true, salaryPeriod: true },
   });
   if (jobs.length === 0) return { count: 0, min: null, max: null, avg: null };
@@ -57,7 +56,7 @@ export async function salaryStats(where: Prisma.JobWhereInput = {}): Promise<Sal
 /** Most common job titles for a filter (for "top roles" sections + internal links). */
 export async function topJobTitles(where: Prisma.JobWhereInput = {}, limit = 6): Promise<string[]> {
   const jobs = await prisma.job.findMany({
-    where: { ...ACTIVE, ...where },
+    where: openJobWhere(where),
     select: { title: true },
     take: 250,
   });
@@ -69,7 +68,7 @@ export async function topJobTitles(where: Prisma.JobWhereInput = {}, limit = 6):
 /** Cities (with province + count) that have active jobs for a filter. */
 export async function citiesInCategory(category: string): Promise<{ city: string; province: Province; count: number }[]> {
   const rows = await prisma.job.findMany({
-    where: { ...ACTIVE, category, city: { not: null }, province: { not: null } },
+    where: openJobWhere({ category, city: { not: null }, province: { not: null } }),
     select: { city: true, province: true },
   });
   const m = new Map<string, { city: string; province: Province; count: number }>();
@@ -86,7 +85,7 @@ export async function citiesInCategory(category: string): Promise<{ city: string
 /** Provinces that have active jobs for a category, with counts. */
 export async function provincesInCategory(category: string): Promise<{ province: Province; count: number }[]> {
   const rows = await prisma.job.findMany({
-    where: { ...ACTIVE, category, province: { not: null } },
+    where: openJobWhere({ category, province: { not: null } }),
     select: { province: true },
   });
   const m = new Map<string, { province: Province; count: number }>();

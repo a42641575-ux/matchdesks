@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { Prisma, type EmploymentType, type Province, type SalaryPeriod, type WorkArrangement } from '@prisma/client';
 import { prisma } from '../lib/db';
 import { slugify } from '../lib/format';
+import { generateJobRef } from '../lib/job-ref';
 
 // Feed seeding: ingest jobs from a TOS-permissive JSON feed you configure via
 // JOB_FEED_URL. Each item maps to a Job with source=FEED, a canonical URL
@@ -108,6 +109,7 @@ async function main(): Promise<void> {
     const data: Prisma.JobCreateInput = {
       title: it.title,
       slug: jobSlug,
+      publicRef: await generateJobRef(),
       description: it.description + attribution,
       company: { connect: { id: company.id } },
       category: it.category,

@@ -95,6 +95,10 @@ model Job {
   id        String @id @default(cuid())
   title     String
   slug      String @unique
+  // Short, human-readable reference shown on the posting + expired page
+  // (e.g. MD-7K3X9). Stable across the listing's life; used by employers to
+  // reference a posting when reposting after expiry.
+  publicRef String? @unique
   description String
 
   companyId String

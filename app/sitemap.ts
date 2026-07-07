@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db';
 import { CATEGORIES, MAJOR_CITIES, PROVINCES, SITE_URL } from '@/lib/constants';
 import { slugify } from '@/lib/format';
 import { BLOG_POSTS } from '@/lib/blog-posts';
+import { openJobWhere } from '@/lib/search';
 
 export const revalidate = 3600;
 
@@ -16,6 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/post`, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${SITE_URL}/contact`, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${SITE_URL}/fraud-policy`, changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${SITE_URL}/posting-policy`, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${SITE_URL}/privacy`, changeFrequency: 'yearly', priority: 0.2 },
     { url: `${SITE_URL}/terms`, changeFrequency: 'yearly', priority: 0.2 },
   ];
@@ -70,7 +72,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const jobs = await prisma.job.findMany({
-    where: { status: 'ACTIVE' },
+    where: openJobWhere(),
     select: { slug: true, updatedAt: true },
     orderBy: { postedAt: 'desc' },
     take: 5000,

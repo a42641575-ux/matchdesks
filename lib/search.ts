@@ -25,6 +25,20 @@ export interface JobSearchResult {
 }
 
 /**
+ * "Open job" filter: ACTIVE and not past its expiry. Jobs with a null
+ * expiresAt are treated as never-expiring. Used everywhere jobs are listed
+ * (search, home, related, counts, sitemap) so expired jobs vanish from
+ * listings immediately without waiting for the expiry cron.
+ */
+export function openJobWhere(extra?: Prisma.JobWhereInput): Prisma.JobWhereInput {
+  const base: Prisma.JobWhereInput = {
+    status: 'ACTIVE',
+    OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+  };
+  return extra ? { AND: [base, extra] } : base;
+}
+
+/**
  * Ranks jobs using real Postgres full-text search (to_tsvector/websearch_to_tsquery).
  * Returns null (rather than throwing) if the raw query fails for any reason, so callers
  * can gracefully fall back to a simpler `contains` search instead of breaking the page.
@@ -36,6 +50,7 @@ async function getFullTextRankedIds(q: string): Promise<string[] | null> {
       FROM "Job" j
       JOIN "Company" c ON c."id" = j."companyId"
       WHERE j."status" = 'ACTIVE'
+        AND (j."expiresAt" IS NULL OR j."expiresAt" > NOW())
         AND to_tsvector('english', j."title" || ' ' || j."description" || ' ' || coalesce(j."category", '') || ' ' || c."name")
             @@ websearch_to_tsquery('english', ${q})
       ORDER BY ts_rank(
@@ -55,7 +70,7 @@ export async function searchJobs(params: JobSearchParams): Promise<JobSearchResu
   const page = Math.max(1, params.page ?? 1);
   const pageSize = JOBS_PAGE_SIZE;
 
-  const andConditions: Prisma.JobWhereInput[] = [{ status: 'ACTIVE' }];
+  const andConditions: Prisma.JobWhereInput[] = [openJobWhere()];
 
   if (params.category) andConditions.push({ category: params.category });
   if (params.employmentType) andConditions.push({ employmentType: params.employmentType as EmploymentType });
@@ -127,7 +142,7 @@ export async function searchJobs(params: JobSearchParams): Promise<JobSearchResu
 
 export async function getFeaturedJobs(limit = 6): Promise<JobWithCompany[]> {
   return prisma.job.findMany({
-    where: { status: 'ACTIVE' },
+    where: openJobWhere(),
     include: { company: true },
     orderBy: { postedAt: 'desc' },
     take: limit,
@@ -140,11 +155,10 @@ export async function getJobBySlug(slug: string): Promise<JobWithCompany | null>
 
 export async function getRelatedJobs(job: JobWithCompany, limit = 4): Promise<JobWithCompany[]> {
   return prisma.job.findMany({
-    where: {
-      status: 'ACTIVE',
+    where: openJobWhere({
       id: { not: job.id },
       OR: [{ category: job.category }, { companyId: job.companyId }],
-    },
+    }),
     include: { company: true },
     orderBy: { postedAt: 'desc' },
     take: limit,
@@ -152,5 +166,5 @@ export async function getRelatedJobs(job: JobWithCompany, limit = 4): Promise<Jo
 }
 
 export async function countActiveJobs(): Promise<number> {
-  return prisma.job.count({ where: { status: 'ACTIVE' } });
+  return prisma.job.count({ where: openJobWhere() });
 }

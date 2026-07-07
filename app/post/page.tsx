@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { PostJobForm } from './PostJobForm';
 
 export const metadata: Metadata = {
@@ -13,6 +14,10 @@ export default function PostJobPage() {
       <p className="mt-2 text-sm text-gray-600">
         Free while we grow. Every posting includes a clear salary range and fraud-reporting tools — the transparency
         Canadian job seekers increasingly expect, and provinces increasingly require.
+      </p>
+      <p className="mt-2 text-xs text-gray-500">
+        Listings are active for 30 days, then expire. To keep a role live, repost it.{' '}
+        <Link href="/posting-policy" className="font-medium text-red-600 hover:underline">Read the posting policy</Link>.
       </p>
 
       <div className="mt-8">

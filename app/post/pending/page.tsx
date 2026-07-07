@@ -7,7 +7,14 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function PostPendingPage() {
+interface PageProps {
+  searchParams: Promise<{ ref?: string }>;
+}
+
+export default async function PostPendingPage({ searchParams }: PageProps) {
+  const { ref } = await searchParams;
+  const cleanRef = ref?.trim().slice(0, 16) || null;
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
       <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
@@ -22,6 +29,20 @@ export default function PostPendingPage() {
           reviews new listings to keep MatchDesks free of scams and spam. Once approved, it will appear in
           search results and on the home page. You will not need to resubmit.
         </p>
+
+        {cleanRef && (
+          <div className="mt-5 rounded-md bg-gray-50 px-4 py-3 text-sm text-gray-700">
+            <p>
+              Your job reference is{' '}
+              <strong className="font-mono tracking-wide text-gray-900">{cleanRef}</strong>
+            </p>
+            <p className="mt-1 text-xs text-gray-500">
+              Keep it — you&apos;ll need it to reference this posting or repost the role after it expires.{' '}
+              <Link href="/posting-policy" className="text-red-600 hover:underline">Read the posting policy</Link>.
+            </p>
+          </div>
+        )}
+
         <p className="mt-2 text-xs text-gray-400">
           This page is not indexed. You can close this tab.
         </p>

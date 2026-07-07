@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db';
 import { slugify } from '@/lib/format';
 import { rateLimit } from '@/lib/rate-limit';
 import { notifyNewPendingJob } from '@/lib/email';
+import { generateJobRef } from '@/lib/job-ref';
 import { jobPostSchema, type JobPostState } from '@/lib/validation';
 
 export async function createJobPosting(_prevState: JobPostState, formData: FormData): Promise<JobPostState> {
@@ -32,6 +33,7 @@ export async function createJobPosting(_prevState: JobPostState, formData: FormD
 
   const data = parsed.data;
   let jobSlug: string;
+  let publicRef = '';
 
   try {
     const companySlug = slugify(data.companyName);
@@ -57,6 +59,8 @@ export async function createJobPosting(_prevState: JobPostState, formData: FormD
       jobSlug = `${baseSlug}-${counter++}`;
     }
 
+    publicRef = await generateJobRef();
+
     const postedAt = new Date();
     const expiresAt = new Date(postedAt);
     expiresAt.setDate(expiresAt.getDate() + 30);
@@ -65,6 +69,7 @@ export async function createJobPosting(_prevState: JobPostState, formData: FormD
       data: {
         title: data.title,
         slug: jobSlug,
+        publicRef,
         description: data.description,
         companyId: company.id,
         category: data.category,
@@ -98,5 +103,5 @@ export async function createJobPosting(_prevState: JobPostState, formData: FormD
     slug: jobSlug,
   });
 
-  redirect(`/post/pending`);
+  redirect(`/post/pending?ref=${encodeURIComponent(publicRef)}`);
 }

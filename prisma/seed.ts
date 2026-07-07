@@ -1,7 +1,16 @@
 import 'dotenv/config';
+import crypto from 'node:crypto';
 import { PrismaClient, type EmploymentType, type Province, type SalaryPeriod, type WorkArrangement } from '@prisma/client';
 
 const prisma = new PrismaClient();
+
+const REF_CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+function makeJobRef(): string {
+  const bytes = crypto.randomBytes(6);
+  let s = '';
+  for (let i = 0; i < 6; i++) s += REF_CHARS[bytes[i] % REF_CHARS.length];
+  return `MD-${s}`;
+}
 
 function slugify(input: string): string {
   return input
@@ -689,6 +698,7 @@ async function main() {
       data: {
         title: t.title,
         slug,
+        publicRef: makeJobRef(),
         description: buildDescription(t, company.name, city ?? 'Canada (Remote)'),
         companyId: company.id,
         category: t.category,
