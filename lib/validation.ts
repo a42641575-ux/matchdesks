@@ -30,7 +30,15 @@ export const jobPostSchema = z
     city: optionalText(120),
     province: z.union([z.enum(PROVINCE_CODES), z.literal('')]).optional(),
     salaryMin: z.coerce.number({ message: 'Enter a minimum salary' }).min(0, 'Must be 0 or more'),
-    salaryMax: z.coerce.number({ message: 'Enter a maximum salary' }).min(0, 'Must be 0 or more'),
+    salaryMax: z
+      .union([z.string(), z.number()])
+      .optional()
+      .transform((v) => {
+        if (v === '' || v === undefined || v === null) return undefined;
+        const n = typeof v === 'number' ? v : Number(v);
+        return Number.isNaN(n) ? undefined : n;
+      })
+      .pipe(z.number().min(0, 'Must be 0 or more').optional()),
     salaryPeriod: z.enum(['HOURLY', 'MONTHLY', 'YEARLY']),
     compensationText: optionalText(200),
     aiScreeningUsed: z
@@ -48,7 +56,7 @@ export const jobPostSchema = z
       .transform((v) => (v ? v : undefined))
       .pipe(z.string().email('Enter a valid email').optional()),
   })
-  .refine((data) => data.salaryMax >= data.salaryMin, {
+  .refine((data) => data.salaryMax == null || data.salaryMax >= data.salaryMin, {
     message: 'Maximum salary must be greater than or equal to the minimum',
     path: ['salaryMax'],
   })

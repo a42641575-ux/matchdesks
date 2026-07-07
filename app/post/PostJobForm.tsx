@@ -140,8 +140,9 @@ export function PostJobForm() {
       <section className="space-y-4 rounded-xl border border-gray-200 bg-white p-6">
         <h2 className="text-base font-semibold text-gray-900">Compensation</h2>
         <p className="text-sm text-gray-500">
-          A salary range is required on MatchDesks — pay transparency rules in Ontario, BC, and other provinces
-          increasingly require this on public job postings.
+          A minimum salary is required on MatchDesks — pay transparency rules in Ontario, BC, and other
+          provinces increasingly require this on public job postings. Maximum is optional if you only have a
+          starting rate.
         </p>
 
         <div className="grid grid-cols-2 gap-4">
@@ -154,9 +155,9 @@ export function PostJobForm() {
           </div>
           <div>
             <label htmlFor="salaryMax" className={labelClass}>
-              Maximum salary *
+              Maximum salary (optional)
             </label>
-            <input id="salaryMax" name="salaryMax" type="number" min={0} step="0.01" required className={inputClass} placeholder="e.g. 90000" />
+            <input id="salaryMax" name="salaryMax" type="number" min={0} step="0.01" className={inputClass} placeholder="e.g. 90000" />
             <FieldError errors={state.errors?.salaryMax} />
           </div>
         </div>

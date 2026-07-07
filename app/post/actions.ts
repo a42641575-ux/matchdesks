@@ -78,7 +78,7 @@ export async function createJobPosting(_prevState: JobPostState, formData: FormD
         city: data.city || null,
         province: data.province || null,
         salaryMin: data.salaryMin,
-        salaryMax: data.salaryMax,
+        salaryMax: data.salaryMax ?? null,
         salaryPeriod: data.salaryPeriod,
         compensationText: data.compensationText ?? null,
         aiScreeningUsed: data.aiScreeningUsed,
