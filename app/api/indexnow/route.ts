@@ -32,8 +32,22 @@ function jobSlugToUrl(slug: string): string {
 
 export async function POST(request: NextRequest): Promise<Response> {
   if (!process.env.INDEXNOW_ADMIN_TOKEN) {
+    // Diagnostic: report which env vars the runtime actually sees, so we can
+    // tell a "var not set" problem from a "var set but wrong value" problem.
+    // Reports presence + length only — never the secret value itself.
+    const present = Object.keys(process.env)
+      .filter((k) => k.includes('INDEXNOW') || k.includes('ADMIN') || k.includes('CRON'))
+      .sort();
     return NextResponse.json(
-      { success: false, error: 'IndexNow is not configured (set INDEXNOW_ADMIN_TOKEN).' },
+      {
+        success: false,
+        error: 'IndexNow is not configured (set INDEXNOW_ADMIN_TOKEN).',
+        debug: {
+          matchingEnvKeys: present,
+          siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? null,
+          nodeEnv: process.env.NODE_ENV ?? null,
+        },
+      },
       { status: 501 },
     );
   }
