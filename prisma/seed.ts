@@ -692,7 +692,7 @@ async function main() {
     postedAt.setDate(postedAt.getDate() - postedDaysAgo);
 
     const expiresAt = new Date(postedAt);
-    expiresAt.setDate(expiresAt.getDate() + 45);
+    expiresAt.setDate(expiresAt.getDate() + 30);
 
     await prisma.job.create({
       data: {
