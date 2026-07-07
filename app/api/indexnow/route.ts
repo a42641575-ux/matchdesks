@@ -31,23 +31,10 @@ function jobSlugToUrl(slug: string): string {
 }
 
 export async function POST(request: NextRequest): Promise<Response> {
-  const token = process.env.INDEXNOW_ADMIN_TOKEN;
-  if (!token || token.trim() === '' || token === 'change-me') {
-    // Diagnostic: report presence + shape of the env var (NOT the value).
-    const tokenInfo = token
-      ? { present: true, length: token.length, first2: token.slice(0, 2), last2: token.slice(-2) }
-      : { present: false };
+  const token = process.env.INDEXNOW_ADMIN_TOKEN?.trim();
+  if (!token) {
     return NextResponse.json(
-      {
-        success: false,
-        error: 'IndexNow is not configured (INDEXNOW_ADMIN_TOKEN missing, empty, or placeholder).',
-        debug: {
-          token: tokenInfo,
-          expectedLength: 48,
-          expectedFirst2: 'a7',
-          expectedLast2: '73',
-        },
-      },
+      { success: false, error: 'IndexNow is not configured (set INDEXNOW_ADMIN_TOKEN).' },
       { status: 501 },
     );
   }
