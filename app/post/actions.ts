@@ -85,6 +85,7 @@ export async function createJobPosting(_prevState: JobPostState, formData: FormD
         aiScreeningDetails: data.aiScreeningUsed ? (data.aiScreeningDetails ?? null) : null,
         applyUrl: data.applyMethod === 'URL' ? (data.applyUrl ?? null) : null,
         applyEmail: data.applyMethod === 'EMAIL' ? (data.applyEmail ?? null) : null,
+        postedByEmail: data.postedByEmail ?? null,
         source: 'NATIVE',
         status: 'PENDING_REVIEW',
         postedAt,

@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { adminToken, clearAdminCookie, isAuthConfigured, isAdmin, setAdminCookie } from '@/lib/admin';
 import { notifySearchEngines } from '@/lib/indexing';
+import { notifyJobApproved } from '@/lib/email';
 import { SITE_URL } from '@/lib/constants';
 
 export interface AdminLoginState {
@@ -48,13 +49,28 @@ export async function approveJob(formData: FormData): Promise<void> {
   const job = await prisma.job.update({
     where: { id: jobId },
     data: { status: 'ACTIVE' },
-    select: { slug: true },
+    select: { slug: true, title: true, postedByEmail: true, company: { select: { name: true } } },
   });
   revalidatePath('/admin');
   revalidatePath('/jobs');
   revalidatePath('/');
   // Fast-path into Google for Jobs + Bing: notify search engines immediately.
   await notifySearchEngines(`${SITE_URL}/jobs/${job.slug}`, 'URL_UPDATED');
+
+  // Notify the employer their posting is live (only if they gave us an email).
+  // Wrapped so a Brevo failure never blocks the approve action.
+  if (job.postedByEmail) {
+    try {
+      await notifyJobApproved({
+        to: job.postedByEmail,
+        jobTitle: job.title,
+        companyName: job.company.name,
+        slug: job.slug,
+      });
+    } catch (err) {
+      console.error('[approveJob] failed to send employer notification:', err);
+    }
+  }
 }
 
 export async function removeJob(formData: FormData): Promise<void> {

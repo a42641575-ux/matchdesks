@@ -55,6 +55,15 @@ export const jobPostSchema = z
       .or(z.literal(''))
       .transform((v) => (v ? v : undefined))
       .pipe(z.string().email('Enter a valid email').optional()),
+    // Optional contact email for the poster — used only to notify them when
+    // their posting goes live. Never shown publicly.
+    postedByEmail: z
+      .string()
+      .trim()
+      .optional()
+      .or(z.literal(''))
+      .transform((v) => (v ? v : undefined))
+      .pipe(z.string().email('Enter a valid email').optional()),
   })
   .refine((data) => data.salaryMax == null || data.salaryMax >= data.salaryMin, {
     message: 'Maximum salary must be greater than or equal to the minimum',

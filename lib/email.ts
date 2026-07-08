@@ -166,6 +166,31 @@ export function notifyNewPendingJob(input: {
   });
 }
 
+// Sent to the employer when their pending job is approved and goes live.
+// Skips silently if Brevo isn't configured OR if the poster left the optional
+// postedByEmail field blank when submitting.
+export async function notifyJobApproved(input: {
+  to: string;
+  jobTitle: string;
+  companyName: string;
+  slug: string;
+}): Promise<void> {
+  const { to, jobTitle, companyName, slug } = input;
+  const body = `
+    <h2>Your job posting is live</h2>
+    <p>Hi there,</p>
+    <p>Your posting for <strong>${escapeHtml(jobTitle)}</strong> at ${escapeHtml(companyName)} has been approved and is now live on ${SITE_NAME}.</p>
+    <p>${btn(`${SITE_URL}/jobs/${encodeURIComponent(slug)}`, 'View your live posting')}</p>
+    <p class="muted">Your posting will remain active for 30 days. Candidates can apply using the instructions on the listing. Thanks for hiring on ${SITE_NAME}.</p>
+  `;
+  await sendBrevoEmail({
+    to,
+    from: fromAddress(),
+    subject: `Your job posting is live on ${SITE_NAME}`,
+    html: emailShell(`Your job posting is live`, body),
+  });
+}
+
 export function notifyFraudReport(input: {
   jobTitle: string;
   jobSlug: string;

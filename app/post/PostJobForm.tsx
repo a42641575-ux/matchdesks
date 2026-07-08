@@ -254,6 +254,17 @@ export function PostJobForm() {
             placeholder="A short description shown on the job posting"
           />
         </div>
+
+        <div>
+          <label htmlFor="postedByEmail" className={labelClass}>
+            Your email (for status updates)
+          </label>
+          <input id="postedByEmail" name="postedByEmail" type="email" className={inputClass} placeholder="you@company.com" />
+          <p className="mt-1 text-xs text-gray-500">
+            We&apos;ll email you when your posting goes live. Not shown publicly.
+          </p>
+          <FieldError errors={state.errors?.postedByEmail} />
+        </div>
       </section>
 
       <section className="space-y-4 rounded-xl border border-gray-200 bg-white p-6">

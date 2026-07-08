@@ -99,6 +99,10 @@ model Job {
   // (e.g. MD-7K3X9). Stable across the listing's life; used by employers to
   // reference a posting when reposting after expiry.
   publicRef String? @unique
+  // Optional contact email for the person who posted the job. Used only to
+  // notify them when their posting goes live (never shown publicly). Null when
+  // the poster didn't provide one — no notification is sent in that case.
+  postedByEmail String?
   description String
 
   companyId String
