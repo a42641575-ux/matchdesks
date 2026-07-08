@@ -112,7 +112,12 @@ Set in: Vercel → MatchDesks → Settings → Environment Variables.
 
 3. **Drift between `prisma/schema.prisma` and the prod DB.** If you change the
    schema, you must `prisma migrate dev` (local) AND ensure the migration runs
-   on prod (Neon) before deploying code that relies on the new fields.
+   on prod (Neon). **Vercel does NOT auto-apply migrations** — only
+   `postinstall: prisma generate` runs, which regenerates types but doesn't
+   touch the DB. The `vercel-build` script in `package.json` runs
+   `prisma migrate deploy` before `next build` to close this gap. If a build
+   ever fails with `column "X" does not exist`, it means a migration didn't
+   apply — run `prisma migrate deploy` against the prod DATABASE_URL manually.
 
 ---
 
