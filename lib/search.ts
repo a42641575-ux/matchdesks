@@ -153,6 +153,18 @@ export async function getJobBySlug(slug: string): Promise<JobWithCompany | null>
   return prisma.job.findUnique({ where: { slug }, include: { company: true } });
 }
 
+/**
+ * Look up a job by its public reference (e.g. "MD-7TCKQM").
+ * Returns the job regardless of status (ACTIVE, EXPIRED, REMOVED) — the caller
+ * decides whether to render it. Used by the /ref/[ref] shortcut route so an
+ * employer can find an expired posting by its reference number.
+ */
+export async function getJobByPublicRef(ref: string): Promise<JobWithCompany | null> {
+  const normalized = ref.trim().toUpperCase();
+  if (!normalized) return null;
+  return prisma.job.findUnique({ where: { publicRef: normalized }, include: { company: true } });
+}
+
 export async function getRelatedJobs(job: JobWithCompany, limit = 4): Promise<JobWithCompany[]> {
   return prisma.job.findMany({
     where: openJobWhere({

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { JobCard } from '@/components/JobCard';
+import { RefLookup } from '@/components/RefLookup';
 import { CATEGORIES, MAJOR_CITIES, SITE_TAGLINE, SITE_URL } from '@/lib/constants';
 import { countActiveJobs, getFeaturedJobs } from '@/lib/search';
 
@@ -57,6 +58,8 @@ export default async function Home() {
               Post a job — it&apos;s free
             </Link>
           </p>
+
+          <RefLookup />
         </div>
       </section>
 

@@ -47,8 +47,8 @@ export default function PostingPolicyPage() {
           <h2 className="text-base font-semibold text-gray-900">Job references (MD-XXXXXX)</h2>
           <p className="mt-2">
             Each posting is assigned a short, unique reference (for example, <code>MD-7K3X9</code>) shown on the job
-            page. Keep this reference — it helps you identify a posting when contacting {SITE_NAME}, reporting an
-            issue, or reposting a similar role.
+            page. Keep this reference — you can look up any posting by it on the home page, and it helps you identify a
+            posting when contacting {SITE_NAME}, reporting an issue, or reposting a similar role.
           </p>
         </section>
 
