@@ -15,13 +15,15 @@
     "db:studio": "prisma studio",
     "index:backfill": "tsx scripts/backfill-indexing.ts",
     "canonical:flip": "tsx scripts/flip-canonical.ts",
-    "import:jobbank": "tsx scripts/import-jobbank-csv.ts"
+    "import:jobbank": "tsx scripts/import-jobbank-csv.ts",
+    "import:csv": "tsx scripts/import-csv.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
+    "csv-parse": "^7.0.1",
     "next": "16.2.10",
     "react": "19.2.4",
     "react-dom": "19.2.4",
