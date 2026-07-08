@@ -14,7 +14,8 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "index:backfill": "tsx scripts/backfill-indexing.ts",
-    "canonical:flip": "tsx scripts/flip-canonical.ts"
+    "canonical:flip": "tsx scripts/flip-canonical.ts",
+    "import:jobbank": "tsx scripts/import-jobbank-csv.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
