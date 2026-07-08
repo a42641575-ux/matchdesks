@@ -9,18 +9,20 @@ import { generateJobRef } from '../lib/job-ref';
 // pointing at the ORIGINAL posting (so Google attributes content to the source
 // and we avoid duplicate-content penalties), and an attribution line appended.
 //
-// IMPORTANT (verified 2026-07-07):
+// IMPORTANT (verified 2026-07-07, updated 2026-07-08):
 //   - Job Bank has NO real-time API/RSS. Scraping jobbank.gc.ca is prohibited
 //     by their Terms of Use (no bots/crawlers). Do NOT scrape Job Bank.
 //   - The only legal Job Bank source is the monthly Open Government CSV dump
 //     (Open Government Licence – Canada, ~1 month stale, requires attribution).
-//   - Republishing feed jobs with canonical-to-source yields UX (more listings
-//     on site) but LITTLE SEO: the canonical passes equity to the source, so
-//     those pages won't earn Google rankings or Google for Jobs for us.
-//   - The strongest FREE supply strategy is native employer outreach (emails
-//     to Canadian SMBs / career centres) so jobs are posted directly on
-//     MatchDesks — those are canonical-to-us, fresh, and earn full SEO +
-//     Google for Jobs. Treat feed seeding as a secondary, UX-only supplement.
+//   - CANONICAL POLICY (changed 2026-07-08): feed jobs are now canonical-to-US
+//     (canonicalUrl = null), NOT canonical-to-source. This means imported jobs
+//     compete for Google for Jobs on the MatchDesks domain and earn full SEO
+//     equity. Grey-hat tradeoff: risk of duplicate-content flag vs. the source,
+//     mitigated by the unique intro text (lib/content.ts) + attribution line.
+//     Keep feedSourceUrl for attribution + dedupe, but do NOT set canonical.
+//   - Native employer outreach remains the strongest long-term supply strategy
+//     (canonical-to-us by definition, fresh, full SEO) — feed import is now a
+//     primary SEO volume engine too, not just a UX supplement.
 //
 // Expected feed shape (JSON array):
 //   { title, companyName, companyWebsite?, description, category,
@@ -124,7 +126,11 @@ async function main(): Promise<void> {
       applyEmail: it.applyEmail ?? null,
       source: 'FEED',
       feedSourceUrl: it.feedSourceUrl,
-      canonicalUrl: it.feedSourceUrl,
+      // canonical-to-us: do NOT point at the original source. Leaving this null
+      // makes the job page canonical to MatchDesks so it earns Google for Jobs
+      // equity and competes for rankings. (Grey-hat: risks duplicate-content
+      // flag vs. the source. Mitigated by the unique intro + attribution line.)
+      canonicalUrl: null,
       status: 'ACTIVE',
       postedAt,
       expiresAt,

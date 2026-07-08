@@ -1,9 +1,26 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { JobCard } from '@/components/JobCard';
-import { CATEGORIES, MAJOR_CITIES, SITE_TAGLINE } from '@/lib/constants';
+import { CATEGORIES, MAJOR_CITIES, SITE_TAGLINE, SITE_URL } from '@/lib/constants';
 import { countActiveJobs, getFeaturedJobs } from '@/lib/search';
 
 export const revalidate = 60;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const count = await countActiveJobs();
+  return {
+    title: `${SITE_TAGLINE} — ${count}+ Canadian jobs hiring now`,
+    description: `Search ${count}+ jobs across Canada. Find work in Toronto, Vancouver, Calgary, Montreal and every province. Full-time, part-time, remote — free to search, free to post.`,
+    alternates: { canonical: '/' },
+    openGraph: {
+      title: 'MatchDesks — Canadian jobs, coast to coast.',
+      description: `Search ${count}+ jobs across every Canadian province and territory.`,
+      url: SITE_URL,
+      type: 'website',
+      siteName: 'MatchDesks',
+    },
+  };
+}
 
 export default async function Home() {
   const [featuredJobs, activeJobCount] = await Promise.all([getFeaturedJobs(6), countActiveJobs()]);

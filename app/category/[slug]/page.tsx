@@ -4,8 +4,9 @@ import { notFound } from 'next/navigation';
 import { JsonLd } from '@/components/JsonLd';
 import { CATEGORIES, MAJOR_CITIES, PROVINCES, SITE_URL, provinceName } from '@/lib/constants';
 import { slugify } from '@/lib/format';
-import { countActiveJobs, provincesInCategory, topJobTitles } from '@/lib/seo';
+import { countActiveJobs, provincesInCategory, salaryStats, topJobTitles } from '@/lib/seo';
 import { buildBreadcrumbLd, buildFaqLd } from '@/lib/schema-org';
+import { categoryHubContent } from '@/lib/content';
 
 export const revalidate = 3600;
 
@@ -33,7 +34,9 @@ export default async function CategoryHubPage({ params }: HubProps) {
   const total = await countActiveJobs({ category: slug });
   const provinces = await provincesInCategory(slug);
   const titles = await topJobTitles({ category: slug }, 8);
+  const salary = await salaryStats({ category: slug });
   const canonical = `${SITE_URL}/category/${slug}`;
+  const content = categoryHubContent({ category: slug, count: total, topProvinces: provinces, salary });
 
   const faqs = [
     { question: `How many ${category.label.toLowerCase()} jobs are open in Canada?`, answer: `There are ${total} ${category.label.toLowerCase()} job${total === 1 ? '' : 's'} listed on MatchDesks across Canada right now.` },
@@ -58,6 +61,8 @@ export default async function CategoryHubPage({ params }: HubProps) {
 
       <h1 className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl">{category.label} jobs in Canada</h1>
       <p className="mt-2 text-sm text-gray-500">{total} {category.label.toLowerCase()} job{total === 1 ? '' : 's'} across Canada. Search by city, province, or remote below.</p>
+
+      <p className="mt-4 max-w-3xl text-sm leading-relaxed text-gray-600">{content.intro}</p>
 
       <div className="mt-8 grid gap-8 sm:grid-cols-2">
         <section>
@@ -113,6 +118,15 @@ export default async function CategoryHubPage({ params }: HubProps) {
               {category.label} salary in {c.city}
             </Link>
           ))}
+        </div>
+      </section>
+
+      <section className="mt-12 border-t border-gray-100 pt-8">
+        <h2 className="text-base font-semibold text-gray-900">About {category.label.toLowerCase()} jobs in Canada</h2>
+        <div className="mt-3 max-w-3xl space-y-3 text-sm leading-relaxed text-gray-600">
+          {content.about.split(' ').length > 0 && (
+            <p>{content.about}</p>
+          )}
         </div>
       </section>
 

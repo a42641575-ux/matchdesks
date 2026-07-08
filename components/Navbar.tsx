@@ -12,12 +12,18 @@ export function Navbar() {
           <span className="text-lg font-semibold tracking-tight text-gray-900">{SITE_NAME}</span>
         </Link>
 
-        <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-medium text-gray-700">
+        <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium text-gray-700">
           <Link href="/jobs" className="hover:text-red-600">
             Find jobs
           </Link>
-          <Link href="/fraud-policy" className="hover:text-red-600">
-            Fraud policy
+          <Link href="/jobs/remote" className="hover:text-red-600">
+            Remote
+          </Link>
+          <Link href="/salaries" className="hover:text-red-600">
+            Salaries
+          </Link>
+          <Link href="/blog" className="hover:text-red-600">
+            Blog
           </Link>
         </nav>
 
