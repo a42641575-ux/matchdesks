@@ -29,6 +29,10 @@ export const jobPostSchema = z
     workArrangement: z.enum(['ONSITE', 'HYBRID', 'REMOTE']),
     city: optionalText(120),
     province: z.union([z.enum(PROVINCE_CODES), z.literal('')]).optional(),
+    // Optional precise-location fields for the JobPosting JSON-LD address.
+    // Not shown on the public job page — only emitted in the structured data.
+    streetAddress: optionalText(200),
+    postalCode: optionalText(20),
     salaryMin: z.coerce.number({ message: 'Enter a minimum salary' }).min(0, 'Must be 0 or more'),
     salaryMax: z
       .union([z.string(), z.number()])

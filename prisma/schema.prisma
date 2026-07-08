@@ -115,6 +115,11 @@ model Job {
 
   city     String?
   province Province?
+  // Optional precise-location fields for the JobPosting JSON-LD address
+  // (Google recommends streetAddress + postalCode; many postings won't have
+  // them, so both are nullable and not shown on the public job page).
+  streetAddress String?
+  postalCode    String?
 
   // Salary range is required-by-default at the form layer (Ontario/BC pay
   // transparency rules) — kept nullable here only to allow future

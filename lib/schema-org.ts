@@ -53,6 +53,8 @@ export function buildJobPostingJsonLd(job: JobWithCompany, siteUrl: string): Rec
       '@type': 'Place',
       address: {
         '@type': 'PostalAddress',
+        ...(job.streetAddress ? { streetAddress: job.streetAddress } : {}),
+        ...(job.postalCode ? { postalCode: job.postalCode } : {}),
         ...(job.city ? { addressLocality: job.city } : {}),
         ...(job.province ? { addressRegion: job.province } : {}),
         addressCountry: 'CA',

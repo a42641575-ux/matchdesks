@@ -123,6 +123,26 @@ export function PostJobForm() {
           </div>
         </div>
 
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="streetAddress" className={labelClass}>
+              Street address (optional)
+            </label>
+            <input id="streetAddress" name="streetAddress" type="text" className={inputClass} placeholder="123 Main St" />
+            <FieldError errors={state.errors?.streetAddress} />
+          </div>
+          <div>
+            <label htmlFor="postalCode" className={labelClass}>
+              Postal code (optional)
+            </label>
+            <input id="postalCode" name="postalCode" type="text" className={inputClass} placeholder="M5V 1A1" />
+            <FieldError errors={state.errors?.postalCode} />
+          </div>
+        </div>
+        <p className="text-xs text-gray-500">
+          Used only for search-engine structured data. Not shown on the public posting.
+        </p>
+
         <div>
           <label htmlFor="employmentType" className={labelClass}>
             Employment type *
