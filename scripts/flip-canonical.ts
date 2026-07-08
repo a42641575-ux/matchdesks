@@ -16,7 +16,7 @@ import { prisma } from '../lib/db';
 
 async function main(): Promise<void> {
   const before = await prisma.job.count({
-    where: { source: 'FEED', NOT: { canonicalUrl: null } },
+    where: { source: 'FEED', canonicalUrl: { not: null } },
   });
   console.log(`Feed jobs with a non-null canonical (to be cleared): ${before}`);
 
@@ -26,7 +26,7 @@ async function main(): Promise<void> {
   }
 
   const result = await prisma.job.updateMany({
-    where: { source: 'FEED', NOT: { canonicalUrl: null } },
+    where: { source: 'FEED', canonicalUrl: { not: null } },
     data: { canonicalUrl: null },
   });
   console.log(`Cleared canonicalUrl on ${result.count} feed jobs.`);
