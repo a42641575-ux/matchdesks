@@ -9,6 +9,7 @@ import { slugify } from '@/lib/format';
 import { searchJobs } from '@/lib/search';
 import { countActiveJobs, salaryStats } from '@/lib/seo';
 import { buildBreadcrumbLd, buildFaqLd } from '@/lib/schema-org';
+import { remoteCategoryContent } from '@/lib/content';
 
 export const revalidate = 3600;
 
@@ -39,6 +40,7 @@ export default async function RemoteCategoryPage({ params, searchParams }: Remot
   const result = await searchJobs({ category: slug, workArrangement: 'REMOTE', page });
   const stats = await salaryStats({ category: slug, workArrangement: 'REMOTE' });
   const canonical = `${SITE_URL}/jobs/remote/${slug}`;
+  const content = remoteCategoryContent({ category: slug, count: result.total, salary: stats });
 
   const salaryText = stats.avg
     ? `Remote ${category.label.toLowerCase()} roles typically pay $${stats.min?.toLocaleString() ?? '—'}–$${stats.max?.toLocaleString() ?? '—'} per year based on ${stats.count} listing${stats.count === 1 ? '' : 's'}.`
@@ -68,6 +70,8 @@ export default async function RemoteCategoryPage({ params, searchParams }: Remot
       <h1 className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl">Remote {category.label} jobs in Canada</h1>
       <p className="mt-2 text-sm text-gray-500">{result.total} remote {category.label.toLowerCase()} job{result.total === 1 ? '' : 's'} — work from anywhere in Canada.</p>
 
+      <p className="mt-4 max-w-3xl text-sm leading-relaxed text-gray-600">{content.intro}</p>
+
       <div className="mt-8">
         {result.jobs.length === 0 ? (
           <div className="rounded-xl border border-dashed border-gray-300 p-10 text-center">
@@ -95,6 +99,13 @@ export default async function RemoteCategoryPage({ params, searchParams }: Remot
           </Link>
         ))}
       </div>
+
+      <section className="mt-12 border-t border-gray-100 pt-8">
+        <h2 className="text-base font-semibold text-gray-900">About remote {category.label.toLowerCase()} jobs in Canada</h2>
+        <div className="mt-3 max-w-3xl text-sm leading-relaxed text-gray-600">
+          <p>{content.about}</p>
+        </div>
+      </section>
 
       <section className="mt-12 border-t border-gray-100 pt-8">
         <h2 className="text-base font-semibold text-gray-900">Frequently asked questions</h2>

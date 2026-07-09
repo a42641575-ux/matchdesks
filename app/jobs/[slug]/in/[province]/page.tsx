@@ -8,6 +8,7 @@ import { CATEGORIES, PROVINCES, SITE_URL, categoryLabel, provinceName } from '@/
 import { searchJobs } from '@/lib/search';
 import { citiesInCategory, countActiveJobs, provincesInCategory, salaryStats } from '@/lib/seo';
 import { buildBreadcrumbLd, buildFaqLd } from '@/lib/schema-org';
+import { provinceLandingContent } from '@/lib/content';
 
 export const revalidate = 3600;
 
@@ -44,6 +45,13 @@ export default async function CategoryProvincePage({ params, searchParams }: Pro
 
   const provSlug = province.toLowerCase();
   const canonical = `${SITE_URL}/jobs/${slug}/in/${provSlug}`;
+  const content = provinceLandingContent({
+    category: slug,
+    province: prov.code,
+    count: result.total,
+    salary: stats,
+    cities: cities.map((c) => ({ city: c.city, count: c.count })),
+  });
 
   const salaryText = stats.avg
     ? `Around $${stats.min?.toLocaleString() ?? '—'}–$${stats.max?.toLocaleString() ?? '—'} per year based on ${stats.count} listing${stats.count === 1 ? '' : 's'} on MatchDesks.`
@@ -90,6 +98,8 @@ export default async function CategoryProvincePage({ params, searchParams }: Pro
         {stats.avg ? ` Typical pay: $${stats.min?.toLocaleString() ?? '—'}–$${stats.max?.toLocaleString() ?? '—'} / year.` : ''}
       </p>
 
+      <p className="mt-4 max-w-3xl text-sm leading-relaxed text-gray-600">{content.intro}</p>
+
       <div className="mt-8">
         {result.jobs.length === 0 ? (
           <div className="rounded-xl border border-dashed border-gray-300 p-10 text-center">
@@ -132,6 +142,13 @@ export default async function CategoryProvincePage({ params, searchParams }: Pro
           </Link>
         ))}
       </div>
+
+      <section className="mt-12 border-t border-gray-100 pt-8">
+        <h2 className="text-base font-semibold text-gray-900">About {category.label.toLowerCase()} jobs in {prov.name}</h2>
+        <div className="mt-3 max-w-3xl text-sm leading-relaxed text-gray-600">
+          <p>{content.about}</p>
+        </div>
+      </section>
 
       <section className="mt-12 border-t border-gray-100 pt-8">
         <h2 className="text-base font-semibold text-gray-900">Frequently asked questions</h2>

@@ -75,7 +75,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     where: openJobWhere(),
     select: { slug: true, updatedAt: true },
     orderBy: { postedAt: 'desc' },
-    take: 5000,
+    take: 50000,
   });
 
   const jobEntries: MetadataRoute.Sitemap = jobs.map((job) => ({

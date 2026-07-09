@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import type { Province } from '@prisma/client';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { JobCard } from '@/components/JobCard';
@@ -9,6 +10,7 @@ import { deslugify, slugify } from '@/lib/format';
 import { searchJobs } from '@/lib/search';
 import { countActiveJobs, salaryStats } from '@/lib/seo';
 import { buildBreadcrumbLd, buildFaqLd } from '@/lib/schema-org';
+import { cityLandingContent } from '@/lib/content';
 
 const YEAR = new Date().getFullYear();
 
@@ -60,6 +62,9 @@ export default async function CategoryCityPage({ params, searchParams }: Categor
   const result = await searchJobs({ category: category.slug, city, province, page });
   const stats = await salaryStats({ category: category.slug, city: { equals: city, mode: 'insensitive' } });
   const canonical = `${SITE_URL}/jobs/${categorySlug}/${citySlug}`;
+  const content = province
+    ? cityLandingContent({ category: category.slug, city, province: province as Province, count: result.total, salary: stats })
+    : null;
   const salaryText = stats.avg
     ? `Typical pay is around $${stats.min?.toLocaleString() ?? '—'}–$${stats.max?.toLocaleString() ?? '—'} per year based on ${stats.count} listing${stats.count === 1 ? '' : 's'} in ${city}.`
     : `Salaries vary by role and experience — browse the current ${category.label.toLowerCase()} openings in ${city} for up-to-date ranges.`;
@@ -97,6 +102,10 @@ export default async function CategoryCityPage({ params, searchParams }: Categor
         {result.total} {category.label.toLowerCase()} job{result.total === 1 ? '' : 's'} in {city}
         {province ? `, ${province}` : ''} right now.
       </p>
+
+      {content && (
+        <p className="mt-4 max-w-3xl text-sm leading-relaxed text-gray-600">{content.intro}</p>
+      )}
 
       <div className="mt-8">
         {result.jobs.length === 0 ? (
@@ -158,6 +167,15 @@ export default async function CategoryCityPage({ params, searchParams }: Categor
           All {category.label.toLowerCase()} roles
         </Link>
       </div>
+
+      {content && (
+        <section className="mt-12 border-t border-gray-100 pt-8">
+          <h2 className="text-base font-semibold text-gray-900">About {category.label.toLowerCase()} jobs in {city}</h2>
+          <div className="mt-3 max-w-3xl text-sm leading-relaxed text-gray-600">
+            <p>{content.about}</p>
+          </div>
+        </section>
+      )}
 
       <section className="mt-12 border-t border-gray-100 pt-8">
         <h2 className="text-base font-semibold text-gray-900">Frequently asked questions</h2>

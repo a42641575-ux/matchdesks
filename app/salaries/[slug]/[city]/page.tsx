@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import type { Province } from '@prisma/client';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { JobCard } from '@/components/JobCard';
@@ -8,6 +9,7 @@ import { deslugify, slugify } from '@/lib/format';
 import { searchJobs } from '@/lib/search';
 import { countActiveJobs, salaryStats } from '@/lib/seo';
 import { buildBreadcrumbLd, buildFaqLd } from '@/lib/schema-org';
+import { salaryPageContent } from '@/lib/content';
 
 export const revalidate = 3600;
 
@@ -44,14 +46,26 @@ export default async function SalaryPage({ params }: SalaryPageProps) {
   const whereCity = { category: slug, city: { equals: city, mode: 'insensitive' } as const };
   let stats = await salaryStats(whereCity);
   let scope = `${city}`;
+  let isLocal = true;
   if (stats.count === 0) {
     // Fall back to national category data so the page stays useful.
     stats = await salaryStats({ category: slug });
     scope = `Canada (national)`;
+    isLocal = false;
   }
   const total = await countActiveJobs(whereCity);
   const result = await searchJobs({ category: slug, city, page: 1 });
   const canonical = `${SITE_URL}/salaries/${slug}/${citySlug}`;
+  // National baseline for the comparison copy (always fetched for context).
+  const nationalStats = await salaryStats({ category: slug });
+  const content = salaryPageContent({
+    category: slug,
+    city,
+    province: (province ?? 'ON') as Province,
+    stats,
+    nationalStats,
+    isLocal,
+  });
 
   const rangeText = stats.avg
     ? `$${stats.min?.toLocaleString() ?? '—'} – $${stats.max?.toLocaleString() ?? '—'} per year (average $${stats.avg?.toLocaleString() ?? '—'}), based on ${stats.count} listing${stats.count === 1 ? '' : 's'} in ${scope}.`
@@ -97,6 +111,8 @@ export default async function SalaryPage({ params }: SalaryPageProps) {
         {stats.avg && <p className="mt-1 text-sm text-gray-500">Average: ${stats.avg?.toLocaleString()}/year · {stats.count} listing{stats.count === 1 ? '' : 's'}</p>}
       </div>
 
+      <p className="mt-6 max-w-3xl text-sm leading-relaxed text-gray-600">{content.intro}</p>
+
       <div className="mt-8 flex flex-wrap gap-2">
         <Link href={`/jobs/${slug}/${citySlug}`} className="rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">Browse {category.label.toLowerCase()} jobs in {city} →</Link>
         <Link href={`/jobs/remote/${slug}`} className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Remote {category.label.toLowerCase()} jobs</Link>
@@ -111,6 +127,13 @@ export default async function SalaryPage({ params }: SalaryPageProps) {
           </div>
         </section>
       )}
+
+      <section className="mt-12 border-t border-gray-100 pt-8">
+        <h2 className="text-base font-semibold text-gray-900">About {category.label.toLowerCase()} salaries in {city}</h2>
+        <div className="mt-3 max-w-3xl text-sm leading-relaxed text-gray-600">
+          <p>{content.about}</p>
+        </div>
+      </section>
 
       <section className="mt-12 border-t border-gray-100 pt-8">
         <h2 className="text-base font-semibold text-gray-900">Frequently asked questions</h2>
