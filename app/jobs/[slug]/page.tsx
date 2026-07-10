@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: JobPageProps): Promise<Metada
   if (!job) return {};
 
   if (isExpiredJob(job)) {
-    const title = `${job.title} at ${job.company.name} — this role has been filled | MatchDesks`;
+    const title = `${job.title} at ${job.company.name} — this role has been filled`;
     const description = `This ${job.title} role at ${job.company.name} is no longer accepting applications. Browse similar ${categoryLabel(job.category).toLowerCase()} jobs on MatchDesks.`;
     return { title, description, alternates: { canonical: job.canonicalUrl ?? `/jobs/${job.slug}` } };
   }
@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: JobPageProps): Promise<Metada
       : job.compensationText
         ? ` — ${job.compensationText}`
         : '';
-  const title = `${job.title} at ${job.company.name}${salaryHint} | MatchDesks`;
+  const title = `${job.title} at ${job.company.name}${salaryHint}`;
   const trimmedDescription =
     job.description.length > 155 ? `${job.description.slice(0, 155).trim()}…` : job.description;
   const description = `${job.title} at ${job.company.name} in ${location}. ${employmentTypeLabel(job.employmentType)} · ${workArrangementLabel(job.workArrangement)}. Apply now on MatchDesks.`;

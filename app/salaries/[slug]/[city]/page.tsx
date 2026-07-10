@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: SalaryPageProps): Promise<Met
   const { city } = resolveCity(citySlug);
   const stats = await salaryStats({ category: slug, city: { equals: city, mode: 'insensitive' } });
   const range = stats.avg ? `$${stats.min?.toLocaleString() ?? ''}–$${stats.max?.toLocaleString() ?? ''}` : 'salaries';
-  const title = `${category.label} salary in ${city} (${YEAR}) — ${range} | MatchDesks`;
+  const title = `${category.label} salary in ${city} (${YEAR}) — ${range}`;
   const description = `Average ${category.label.toLowerCase()} salary in ${city}, Canada. See pay ranges, current openings, and what ${category.label.toLowerCase()} roles earn in ${city} on MatchDesks.`;
   return { title, description, alternates: { canonical: `/salaries/${slug}/${citySlug}` } };
 }

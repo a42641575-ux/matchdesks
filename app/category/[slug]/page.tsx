@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: HubProps): Promise<Metadata> 
   const category = CATEGORIES.find((c) => c.slug === slug);
   if (!category) return {};
   const total = await countActiveJobs({ category: slug });
-  const title = `${category.label} jobs in Canada (${YEAR}) — ${total} open | MatchDesks`;
+  const title = `${category.label} jobs in Canada (${YEAR}) — ${total} open`;
   const description = `Browse ${total} ${category.label.toLowerCase()} jobs across Canada. Search by city, province, or remote, and see salary ranges for ${category.label.toLowerCase()} roles on MatchDesks.`;
   return { title, description, alternates: { canonical: `/category/${slug}` } };
 }

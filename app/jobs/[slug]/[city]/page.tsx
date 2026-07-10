@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: CategoryCityPageProps): Promi
 
   const { city } = resolveCity(citySlug);
   const total = await countActiveJobs({ category: categorySlug, city: { equals: city, mode: 'insensitive' } });
-  const title = `${category.label} jobs in ${city} (${YEAR}) — ${total} open | MatchDesks`;
+  const title = `${category.label} jobs in ${city} (${YEAR}) — ${total} open`;
   const description = `Browse ${total} ${category.label.toLowerCase()} jobs in ${city}, Canada. Salaries, remote options, and new listings added daily on MatchDesks.`;
 
   return {

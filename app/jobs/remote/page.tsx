@@ -18,7 +18,7 @@ const YEAR = new Date().getFullYear();
 
 export async function generateMetadata(): Promise<Metadata> {
   const total = await countActiveJobs({ workArrangement: 'REMOTE' });
-  const title = `Remote jobs in Canada (${YEAR}) — ${total} open | MatchDesks`;
+  const title = `Remote jobs in Canada (${YEAR}) — ${total} open`;
   const description = `Browse ${total} remote jobs in Canada. Work from anywhere — full-time, part-time, and contract remote roles across every category on MatchDesks.`;
   return { title, description, alternates: { canonical: `/jobs/remote` } };
 }

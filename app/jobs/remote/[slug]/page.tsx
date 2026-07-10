@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: RemoteCategoryProps): Promise
   const category = CATEGORIES.find((c) => c.slug === slug);
   if (!category) return {};
   const total = await countActiveJobs({ category: slug, workArrangement: 'REMOTE' });
-  const title = `Remote ${category.label} jobs in Canada (${YEAR}) — ${total} open | MatchDesks`;
+  const title = `Remote ${category.label} jobs in Canada (${YEAR}) — ${total} open`;
   const description = `Browse ${total} remote ${category.label.toLowerCase()} jobs in Canada. Work from anywhere — salaries, contract and full-time remote ${category.label.toLowerCase()} roles on MatchDesks.`;
   return { title, description, alternates: { canonical: `/jobs/remote/${slug}` } };
 }

@@ -5,7 +5,7 @@ import { CATEGORIES, SITE_URL } from '@/lib/constants';
 import { buildBreadcrumbLd } from '@/lib/schema-org';
 
 export const metadata: Metadata = {
-  title: 'Salary guides by role and city | MatchDesks',
+  title: 'Salary guides by role and city',
   description: 'Canadian salary benchmarks by job category and city — see typical pay ranges for roles across Canada on MatchDesks.',
   alternates: { canonical: '/salaries' },
 };

@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: ProvincePageProps): Promise<M
   const prov = PROVINCES.find((p) => p.code === province.toUpperCase());
   if (!category || !prov) return {};
   const total = await countActiveJobs({ category: slug, province: prov.code });
-  const title = `${category.label} jobs in ${prov.name} (${YEAR}) — ${total} open | MatchDesks`;
+  const title = `${category.label} jobs in ${prov.name} (${YEAR}) — ${total} open`;
   const description = `Browse ${total} ${category.label.toLowerCase()} jobs in ${prov.name}, Canada. Salaries, remote options, and new listings added daily on MatchDesks.`;
   return { title, description, alternates: { canonical: `/jobs/${slug}/in/${province.toLowerCase()}` } };
 }
